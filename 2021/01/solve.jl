@@ -1,6 +1,7 @@
 using Test
 
 nincreased(v) = count(diff(v) .> 0)
+nincreased(v, n) = nincreased(map(sum, zip((v[i:end] for i in 1:n)...)))
 
 sample = [
 199
@@ -16,9 +17,11 @@ sample = [
 ]
 
 @test nincreased(sample) == 7
+@test nincreased(sample, 3) == 5
 
 data = map(readlines("input.txt")) do l
     parse(Int, l)
 end
 
 @show nincreased(data)
+@show nincreased(data, 3)
