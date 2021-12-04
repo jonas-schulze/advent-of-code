@@ -3,13 +3,13 @@ using Test
 function bitmask(input)
     m = countlines(input)
     n = length(readline(input))
-    mask = BitMatrix(undef, n, m)
+    mask = BitMatrix(undef, m, n)
     for (i, l) in enumerate(eachline(input))
         for (j, c) in enumerate(l)
-            mask[j,i] = c == '1'
+            mask[i,j] = c == '1'
         end
     end
-    return mask'
+    return mask
 end
 
 function power(mask)
