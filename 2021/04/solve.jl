@@ -63,13 +63,19 @@ end
 
 function last_bingo(drawn, boards)
     @assert allunique(drawn)
+    @assert minimum(drawn) >= 0
+
+    # Compute the round a number was drawn:
+    round = zeros(Int, 1+maximum(drawn)) # account for 0
+    for (i, num) in enumerate(drawn)
+        round[1+num] = i
+    end
 
     # Compute the round a respective field was marked:
     marked = zero(boards)
-    local num, b
-    for (i, num) in enumerate(drawn)
-        ids = findall(==(num), boards)
-        marked[ids] .= i
+    for i in eachindex(boards)
+        num = boards[i]
+        marked[i] = round[1+num]
     end
 
     # Compute the round a respective board won:
@@ -91,11 +97,11 @@ function last_bingo(drawn, boards)
     @assert all(<(never), won)
 
     # Select board that won last and compute its score:
-    round, b = findmax(won)
+    r, b = findmax(won)
     board = boards[:,:,b]
-    nomarks = marked[:,:,b] .> round
+    nomarks = marked[:,:,b] .> r
     s = sum(board[nomarks])
-    num = drawn[round]
+    num = drawn[r]
     return b, num, s, s*num
 end
 
