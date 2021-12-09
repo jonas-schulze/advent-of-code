@@ -1,8 +1,6 @@
 using Test
 using OffsetArrays
 
-#Base.circshift!(v::OffsetArray, shifts) = circshift!(v.parent, shifts)
-
 function read_population(file)
     pop = OffsetArray(zeros(Int, 1+8), 0:8)
     open(file) do io
