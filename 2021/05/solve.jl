@@ -10,7 +10,7 @@ function parse_vent(s::String)
     end
 end
 
-function noverlaps(file)
+function noverlaps(file, diagonal=false)
     vents = map(parse_vent, readlines(file))
     X = Y = 0
     for v in vents
@@ -22,7 +22,6 @@ function noverlaps(file)
     X += 1
     Y += 1
     lines = zeros(Int, X, Y)
-    @info "field dimensions: $(size(lines))"
     for v in vents
         x1, y1, x2, y2 = v
         if x1 == x2
@@ -37,6 +36,17 @@ function noverlaps(file)
             for x in x1+1:x2+1
                 lines[x, y] += 1
             end
+        elseif diagonal
+            dx = sign(x2 - x1)
+            dy = sign(y2 - y1)
+            @assert abs(x2 - x1) == abs(y2 - y1)
+            x = x1 + 1
+            y = y1 + 1
+            for _ in 0:abs(x2 - x1)
+                lines[x, y] += 1
+                x += dx
+                y += dy
+            end
         end
     end
     count(>=(2), lines)
@@ -44,3 +54,6 @@ end
 
 @test noverlaps("test.txt") == 5
 @show noverlaps("input.txt")
+
+@test noverlaps("test.txt", true) == 12
+@show noverlaps("input.txt", true)
