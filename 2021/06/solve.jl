@@ -34,6 +34,8 @@ tpop = read_population("test.txt")
 @test sum(tpop) == 5
 @test sum(simulate!(tpop, 18)) == 26
 @test sum(simulate!(tpop, 80-18)) == 5934
+@test sum(simulate!(tpop, 256-80)) == 26984457539
 
 pop = read_population("input.txt")
 @show sum(simulate!(pop, 80))
+@show sum(simulate!(pop, 256-80))
