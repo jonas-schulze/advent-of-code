@@ -9,15 +9,17 @@ function read_positions(file::String)
     end
 end
 
-function fuel_consumption(pos::Vector{Int}, p::Int)
+fuel_consumption(pos, p) = fuel_consumption(identity, pos, p)
+
+function fuel_consumption(f::Function, pos::Vector{Int}, p::Int)
     c = 0
     for x in pos
-        c += abs(x-p)
+        c += f(abs(x-p))
     end
     c
 end
 
-function optimum_pos_fuel(file::String)
+function optimum1(file::String)
     pos = read_positions(file)
     m = median(pos)
     if isinteger(m)
@@ -34,5 +36,20 @@ function optimum_pos_fuel(file::String)
     end
 end
 
-@test optimum_pos_fuel("test.txt") == (2, 37)
-@show optimum_pos_fuel("input.txt")
+# triangle numbers:
+Δ(i) = i*(i+1)÷2
+
+function optimum2(file::String)
+    pos = read_positions(file)
+    a, b = extrema(pos)
+    c = a:b
+    f = [fuel_consumption(Δ, pos, c) for c in a:b]
+    i = argmin(f)
+    return c[i], f[i]
+end
+
+@test optimum1("test.txt") == (2, 37)
+@show optimum1("input.txt")
+
+@test optimum2("test.txt") == (5, 168)
+@show optimum2("input.txt")
