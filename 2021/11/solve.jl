@@ -54,9 +54,20 @@ function simulate!(grid, nsteps)
     return n
 end
 
+function time2sync(grid)
+    n = 0
+    while true
+        n += 1
+        simulate!(grid, 1) == 100 && break
+    end
+    return n
+end
+
 test = read_grid("test.txt")
 @test simulate!(test, 10) == 204
 @test simulate!(test, 90) == 1656 - 204
+@test time2sync(test) == 195 - 100
 
 input = read_grid("input.txt")
 @show simulate!(input, 100)
+@show time2sync(input) + 100
