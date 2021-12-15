@@ -6,9 +6,7 @@ function animate_grid(file; nsteps, fps=5, annotate=false)
     grid = read_grid(file)
 
     # Create color palette:
-    z = @. 1.0 - log10(10:-1:1)
-    colors = collect(cgrad([:black, :white], z))
-    colors = circshift(colors, 1)
+    colors = [RGB(1, 1, 1)] ∪ palette([:blue, :orange], 9)
 
     # Some helpers:
     title(i) = string("Iteration ", lpad(i, padding, '0'))
@@ -22,7 +20,7 @@ function animate_grid(file; nsteps, fps=5, annotate=false)
         #framestyle=:none,
         clims=((0, 9)),
         color=colors,
-        colorbar=false,
+        #colorbar=false,
         size=(400, 400),
     )
     padding = ndigits(nsteps)
