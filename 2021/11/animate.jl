@@ -41,5 +41,5 @@ function animate_grid(file; nsteps, fps=5, annotate=false)
     gif(anim, f*".gif", fps=fps)
 end
 
-animate_grid("test.txt", nsteps=250)
-animate_grid("input.txt", nsteps=400)
+animate_grid("test.txt", nsteps=250, fps=10)
+animate_grid("input.txt", nsteps=400, fps=10)
