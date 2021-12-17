@@ -42,8 +42,8 @@ function polymerize(polymer, rules)
             next[(A, B)] = n
         else
             n1 = get(next, (A, C), 0)
-            n2 = get(next, (C, B), 0)
             next[(A, C)] = n + n1
+            n2 = get(next, (C, B), 0)
             next[(C, B)] = n + n2
         end
     end
