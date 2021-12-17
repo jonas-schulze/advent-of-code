@@ -1,4 +1,5 @@
 using Test
+using OffsetArrays
 
 function read_manual(file)
     dots = Tuple{Int,Int}[]
@@ -42,5 +43,35 @@ function count_after_fold(file)
     length(Set(dots))
 end
 
+function fold_manual(file)
+    dots, folds = read_manual(file)
+    # Perform all fold instructions:
+    dots = foldl(fold_paper!, folds, init=dots)
+    # Collect dots on coordinate system:
+    maxcol = maximum(first, dots)
+    maxrow = maximum(last, dots)
+    sheet = OffsetArray(fill(' ', maxrow+1, maxcol+1), 0:maxrow, 0:maxcol)
+    for (x, y) in dots
+        sheet[y, x] = '#'
+    end
+    # Draw as string:
+    io = IOBuffer()
+    for c in eachslice(sheet, dims=1)
+        join(io, c)
+        println(io)
+    end
+    String(take!(io))
+end
+
 @test count_after_fold("test.txt") == 17
 @show count_after_fold("input.txt")
+
+@test fold_manual("test.txt") == """
+#####
+#   #
+#   #
+#   #
+#####
+"""
+
+println(fold_manual("input.txt"))
