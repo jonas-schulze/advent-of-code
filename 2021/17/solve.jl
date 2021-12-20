@@ -60,37 +60,70 @@ end
 @test isempty(touches_target_y(11, -10:-5))
 @test isempty(touches_target_y(-11, -10:-5))
 
-function max_probe_height(tx, ty)
-    # Minimum launch velocity to reach target area in x direction:
-    vx_min = floor(Int, sqrt(0.25 + 2minimum(tx)) - 0.5)
+# Minimum launch velocity `vx` to reach target area after `n` steps:
+function vx_min(tx, n)
+    # If the probe doesn't come to a halt, the velocities must fulfill
+    # `vx + (vx-1) + ... + (vx-(n-1)) >= minimum(tx)`. Thus:
+    v = minimum(tx)/n + (n-1)/2
+    # If, however, the probe has become stationary in the meantime, describe
+    # the minimum velocity to become stationary within the target area, instead:
+    if v <= n
+        v = -0.5 + sqrt(0.25 + 2minimum(tx))
+    end
+    return floor(Int, v)
+end
 
-    # Velocity to overshoot target area in x direction within `n` steps,
-    # i.e. `vx + (vx-1) + ... + (vx-(n-1)) > maximum(tx)`:
-    vx_max(n) = ceil(Int, maximum(tx)/(n-1) + n/2)
+# Maximum launch velocity `vx` to be within target area after `n` steps,
+# i.e. `vx + (vx-1) + ... + (vx-(n-1)) <= maximum(tx)`:
+vx_max(tx, n) = ceil(Int, maximum(tx)/n + (n-1)/2)
 
+function initial_velocities(f, tx, ty)
     # Due to how gravity is modelled, the probe will always reach `y=0` with a
     # velocity of `vy=-abs(vy)-1`. Therefore, if `vy > abs(minimum(ty))-1` the
     # probe will always overshoot the target area within 1 step.
     #
-    # Assume that it's always possible to hit the target area in y direction.
+    # Iterate all velocities with decreasing `vy` and maximum height:
     vy = abs(minimum(ty))
-    local ny
-    while true
+    vy_min = -vy
+    while vy >= vy_min
         vy -= 1
         ny = touches_target_y(vy, ty)
         isempty(ny) && continue
 
         # Now, find a horizontal launch velocity such that the probe hits the
         # target area at the same time in both directions x and y.
-        for vx in vx_min:vx_max(last(ny))
+        vmin = vx_min(tx, last(ny))
+        vmax = vx_max(tx, first(ny))
+        for vx in vmin:vmax
             nx = touches_target_x(vx, tx)
             isempty(nx ∩ ny) && continue
 
-            # Compute probe height:
-            return vy*(vy+1)÷2
+            # Report initial velocity:
+            f(vx, vy) && return
         end
     end
 end
 
+function max_probe_height(tx, ty)
+    local height
+    initial_velocities(tx, ty) do vx, vy
+        height = vy*(vy+1)÷2
+        return true
+    end
+    return height
+end
+
 @test max_probe_height(20:30, -10:-5) == 45
 @show max_probe_height(209:238, -86:-59)
+
+function num_initial_velocities(tx, ty)
+    n = 0
+    initial_velocities(tx, ty) do vx, vy
+        n += 1
+        return false
+    end
+    return n
+end
+
+@test num_initial_velocities(20:30, -10:-5) == 112
+@show num_initial_velocities(209:238, -86:-59)
