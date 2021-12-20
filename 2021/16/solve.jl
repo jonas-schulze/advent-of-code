@@ -97,6 +97,30 @@ function sum_versions(file::String)
     return sum_versions(m)
 end
 
+const OP = Dict(
+    0 => sum,
+    1 => prod,
+    2 => minimum,
+    3 => maximum,
+    5 => x -> x[1] > x[2],
+    6 => x -> x[1] < x[2],
+    7 => x -> x[1] == x[2],
+)
+
+function evaluate(packet::BITS)
+    t = packet.type
+    t == 4 && return packet.content
+    f = OP[packet.type]
+    args = map(evaluate, packet.content)
+    return f(args)
+end
+
+function evaluate(str::String)
+    bits = str2bits(str)
+    m, _ = parse_bits(bits)
+    return evaluate(m)
+end
+
 b1 = str2bits("D2FE28")
 m1, p1 = parse_bits(b1)
 @test m1 == BITS(6, 4, 2021)
@@ -114,6 +138,16 @@ m2, p2 = parse_bits(b2)
 @test sum_versions("test3.txt") == 23
 @test sum_versions("test4.txt") == 31
 
+@test evaluate("C200B40A82") == 3
+@test evaluate("04005AC33890") == 54
+@test evaluate("880086C3E88112") == 7
+@test evaluate("CE00C43D881120") == 9
+@test evaluate("D8005AC2A8F0") == 1
+@test evaluate("F600BC2D8F") == 0
+@test evaluate("9C005AC2F8F0") == 0
+@test evaluate("9C0141080250320F1802104A08") == 1
+
 b = read_bits("input.txt")
 m, _ = parse_bits(b)
 @show sum_versions(m)
+@show evaluate(m)
