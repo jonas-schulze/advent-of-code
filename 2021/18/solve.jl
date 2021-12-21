@@ -131,6 +131,8 @@ test = read_snailfish_numbers("test.txt")
 stest = snailfish([[[[6,6],[7,6]],[[7,7],[7,0]]],[[[7,7],[7,7]],[[7,8],[9,9]]]])
 @test sum(test) == stest
 @test magnitude(stest) == 4140
+@test maximum(magnitude(x + y) for x in test, y in test) == 3993
 
 input = read_snailfish_numbers("input.txt")
 @show magnitude(sum(input))
+@show maximum(magnitude(x + y) for x in input, y in input)
